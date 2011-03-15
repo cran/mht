@@ -107,7 +107,7 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 		
 		int sup;
 		
-		sup=ktest+pow(2, *maxq);
+		sup=(int)ktest+pow(2.0, *maxq);
 		int ncb=ijk;		/*ncb est la dimension de U2final*/
 		int ncc=ncb;
 		
@@ -279,11 +279,11 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 		{
 			/*on calcule sum(beta^2) et le produit mat et la sum du produit mat*/
 			float sum_bet=0;
-			for(i=0;i<pow(2,m);i++)
+			for(i=0;i<pow(2.0,m);i++)
 				sum_bet+=reg[ktest+i]*reg[ktest+i];
 			
 			int maxit;
-			maxit=ktest+pow(2,m);
+			maxit=(int)ktest+pow(2.0,m);
 			
 			float *dd=new float[nl*maxit];  
 			float *bet=new float[maxit];
@@ -303,7 +303,7 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 			float som=0;
 			for(i=0;i<nl;i++)
 				som+=(eps2[i]-cc[i])*(eps2[i]-cc[i]);
-			FF[m]=(nl-ktest-pow(2,m))*sum_bet/(pow(2,m)*som);			
+			FF[m]=(nl-ktest-pow(2.0,m))*sum_bet/(pow(2.0,m)*som);			
 			delete[] cc;
 			delete[] dd;
 			delete[] bet;
