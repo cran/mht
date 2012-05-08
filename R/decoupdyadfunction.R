@@ -14,20 +14,13 @@ dyadiqueordre=function(data,Y,m,maxordre,var_nonselect,maxit,showtest,showordre)
 
 p=ncol(data)
 n=nrow(data)
-	
+
+if(missing(maxordre)){maxordre=min(n/2-1,p/2-1)}
 if(missing(maxit)){maxit=5}
 if(missing(showtest)){showtest=FALSE}
 if(missing(showordre)){showordre=TRUE}
 if(missing(m)){m=100}
 
-	
-	
-if(missing(var_nonselect)){var_nonselect=1
-}else{
-	if(sum(data[,1])!=n){var_nonselect=var_nonselect+1
-	}
-}
-			
 			
 			#		-------------------------------------
 			#			on scale la matrice de départ
@@ -44,7 +37,12 @@ if(sum(data[,1])==n){data=cbind(data[,1],scale(data[,-1])/sqrt(n-1))
 	intercept=FALSE
 	p=p+1
 }
-
+	
+if(missing(var_nonselect)){var_nonselect=1
+}else{
+	if(!intercept){var_nonselect=var_nonselect+1}
+	}
+		
 				
 
 numberproblem=0
@@ -82,8 +80,8 @@ while(longordo!=1)
 
 if(sum(MU==mu)==0)#si on a pas encore testé le mu
 {
-bol=bolasso(data,Y,mu,m,probaseuil=0.1,var_nonselect=var_nonselect)
-compteur2=bol$frequency*m
+bol=bolasso(data,Y,mu,m,probaseuil=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)))
+compteur2=bol$frequency
 
 MU=c(MU,mu)#on met tous les mu qu'on a deja testé
 COMPTEUR2=cbind(COMPTEUR2,compteur2)#on met les compteur2 de chaque mu testé
@@ -96,7 +94,7 @@ if(showtest)
 	compteur2=COMPTEUR2[,a]}	#on evite de refaire un calcul deja fait
 
 
-nonordonne=which(compteur2==m)#nous donne les indices des variables selectionnées
+nonordonne=which(compteur2==1)#nous donne les indices des variables selectionnées
 
 #on regarde maintenant lesquelles étaient deja ordonnées
 ordonne=numeric(0)
@@ -122,7 +120,7 @@ if(longordo>1){muinf=mumil
 
 #on met une sécurité
 if((musup-muinf)<10e-15){
-	print("break")
+	#print("break")
 	problem=1
 	break #nous sort du while s'il y a un problème
 	}
@@ -134,7 +132,7 @@ ordre=c(ordre,ordonne)
 if(showordre){print(ordre)}
 
 if((musup-muinf)<10e-15){
-	print("break")
+	if(showtest){print("break")}
 	break #nous sort de l'algorithme s'il y a un problème
 	}
 }
@@ -143,8 +141,8 @@ if((musup-muinf)<10e-15){
 numberproblem=numberproblem+1*(problem==1) #recence le nombre de problèmes
 
 }#fin while numberproblem<maxit
-print(paste("number of iteration(s):",numberproblem+1))
+#print(paste("number of iteration(s):",numberproblem+1))
 #print(numberproblem+1)
 
-return(list(data_used=bol$data,ordre=ordre,prob=numberproblem))
+return(list(data_used=bol$data,ordre=ordre,prob=numberproblem,mu=MU,compteur=COMPTEUR2))
 }#fin function

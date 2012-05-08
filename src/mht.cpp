@@ -13,13 +13,12 @@ using namespace std;
 #include "maximum.h"
 #include "gaussrand.h"
 
-int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
+int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq,double *sigma)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
 {
 	int iter;
 	int IT2= *IT;
-	
-	int nbr;
-	nbr=2;
+	double sigma2= *sigma; 
+
 	/*on ne doit pas toucher a  XI2dep, U2dep, XII,*/
 	for(iter=0;iter<IT2;iter++)
 	{	
@@ -57,7 +56,11 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 		ijk= ktest;
 		std::vector<float> epsilon(nl);
 		for(i=0;i<nl;i++)
-			epsilon[i]=gaussrand();
+			if(sigma2==0)
+			{epsilon[i]=gaussrand();
+			}else{
+				epsilon[i]=sqrt(sigma2)*gaussrand();
+			}
 		float norm_eps=0;
 		for(i=0;i<nl;i++)
 			norm_eps +=epsilon[i]*epsilon[i];
@@ -282,6 +285,8 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 			for(i=0;i<pow(2.0,m);i++)
 				sum_bet+=reg[ktest+i]*reg[ktest+i];
 			
+			if(sigma2==0)
+			{
 			int maxit;
 			maxit=(int)ktest+pow(2.0,m);
 			
@@ -307,6 +312,8 @@ int main(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,i
 			delete[] cc;
 			delete[] dd;
 			delete[] bet;
+			}else{FF[m]=sum_bet/sigma2;			
+				}
 		}
 		/*il faut mettre FF dans F=rbind(F,FF)*/
 		

@@ -6,7 +6,7 @@
 \description{
 Calculation of the quantiles of the procbol procedure}
 \usage{
-quantileprocbol(data,k,alpha,IT,maxq)
+quantileprocbol(data,k,alpha,IT,maxq,sigma)
 }
 
 \arguments{
@@ -15,6 +15,7 @@ quantileprocbol(data,k,alpha,IT,maxq)
 \item{alpha}{A user supplied type I error sequence. Default is (0.1,0.05).}
 \item{IT}{Number of simulations in the calculation of the quantile. Default is 1000.}
 \item{maxq}{Number of maximum multiple hypotheses testing to do. Default is log(min(n,p)-1,2).}
+\item{sigma}{Value of the variance if it is known; 0 otherwise. Default is 0.}
 
 }
 

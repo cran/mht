@@ -1,3 +1,10 @@
 useDynLib(mht)
 import(glmnet)
-exportPattern("^[^\\.]") 
+export(procbol,bolasso,decompbaseortho,dyadiqueordre,proc_ord,refit,quantileprocbol) 
+
+S3method(refit, proctest)
+S3method(refit, proctest_ord)
+S3method(print, proctest)
+S3method(print, proctest_ord)
+S3method(predict, proctest)
+S3method(predict, proctest_ord)

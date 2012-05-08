@@ -1,4 +1,4 @@
-quantileprocbol=function(data,k,alpha,IT,maxq)
+quantileprocbol=function(data,k,alpha,IT,maxq,sigma)
 {
 n=nrow(data)
 p=ncol(data)
@@ -6,6 +6,7 @@ p=ncol(data)
 	if(missing(alpha)){alpha=c(0.1,0.05)}
 	if(missing(IT)){IT=1000}
 	if(missing(maxq)){maxq=log(min(n,p)-1,2)}
+	if(missing(sigma)){sigma=0}
 
 b=0
 nbrprob=0
@@ -37,7 +38,7 @@ sup=floor(maxq) #nombre max de tests que l'on fait
 F=matrix(0,IT*sup)
 if(k==0){XI2dep=0
 	U2dep=0}
-a=quantiletest(k,data,XI2dep,U2dep,n,p,F,IT,maxq-1)	
+a=quantiletest(k,data,XI2dep,U2dep,n,p,F,IT,maxq-1,sigma=sigma)	
 F=t(matrix(a$retour,sup,IT))
 #print(F[,1])
 long=200
