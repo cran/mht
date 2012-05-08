@@ -176,7 +176,7 @@ colnames(Y.fitted)=alpha
 rownames(coefficients)=c("intercept",paste("X",2:p,sep=""))
 colnames(coefficients)=alpha
 	
-out=list(data=list(X=dataa,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ordreinit,ordrebeta=ordre,kchap=NBR,quantile=aV2,call=match.call())
+out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ordreinit,ordrebeta=ordre,kchap=NBR,quantile=aV2,call=match.call())
 
 out
 structure(out,class="proctest_ord")

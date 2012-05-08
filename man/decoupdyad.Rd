@@ -6,7 +6,7 @@
 \description{
 Dyadic algorithm using the Bolasso technique to order the variables }
 \usage{
-dyadiqueordre(data,Y,m,maxordre,var_nonselect,maxit,showtest,showordre)
+dyadiqueordre(data,Y,m,maxordre,var_nonselect,showtest,showordre,random)
 }
 
 \arguments{
@@ -15,9 +15,9 @@ dyadiqueordre(data,Y,m,maxordre,var_nonselect,maxit,showtest,showordre)
 \item{m}{Number of bootstrapped iteration of the Lasso. Default is \code{m}=100.}
 \item{maxordre}{Number of variables one wishes to order. Default is min(n-1,p-1).}
 \item{var_nonselect}{Number of variables that don't undergo feature selection. They have to be in the first columns of data. Default is 1, the selection is not performed on the intercept.}
-\item{maxit}{Number of times the algorithm is restarted if unabled to order \code{maxordre} variables. Default is \code{maxit}=5}
 \item{showtest}{Logical value. If TRUE, show the number of regularization parameters tested to show the steps of the algorithm. Default is FALSE.}
 \item{showordre}{Logical value. If TRUE, show the ordered variables at each step of the algorithm. Default is TRUE.}
+\item{random}{optionnal parameter. Matrix of size n*m, the m bootstrap samples are constructed from the m columns.}
 }
 
 

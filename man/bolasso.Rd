@@ -6,7 +6,7 @@ Bolasso: Bootstrapped Lasso}
 \description{
 Performed a bootstrapped Lasso}
 \usage{
-bolasso(data,Y,mu,m,probaseuil,penalty.factor)
+bolasso(data,Y,mu,m,probaseuil,penalty.factor,random)
 }
 
 \arguments{
@@ -16,6 +16,7 @@ bolasso(data,Y,mu,m,probaseuil,penalty.factor)
 \item{m}{Number of bootstrapped iteration of the Lasso. Default is m=100.}
 \item{probaseuil}{A frequency threshold for selecting the set of relevant variables. Default is 1}
 \item{penalty.factor}{Separate penalty factors can be applied to each coefficient. This is a number that multiplies lambda to allow differential shrinkage. Can be 0 for some variables, which implies no shrinkage, and that variable is always included in the model. Default is 1 for all variables except the intercept.}
+\item{random}{optionnal parameter. Matrix of size n*m, the m bootstrap samples are constructed from the m columns.}
 }
 
 

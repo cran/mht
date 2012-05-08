@@ -1,6 +1,6 @@
 #refit.proctest=function(object,...){UseMethod("refit")}
 
-refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,maxit,showordre,IT,maxq,showtest,showresult,...)
+refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,...)
 {
 	#print("refit.proctest")
 	n=nrow(object$data$X)
@@ -10,7 +10,6 @@ refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("
 	if(missing(maxordre)){maxordre=min(n/2-1,p/2-1)}
 	if(missing(choix_ordre)){choix_ordre="bolasso"}
 	if(missing(IT)){IT=1000}
-	if(missing(maxit)){maxit=5}#nombre de fois ou on redemarre l'algo
 	if(missing(maxq)){maxq=log(min(n,p)-1,2)}
 	if(missing(showtest)){showtest=FALSE}
 	if(missing(showordre)){showordre=TRUE}
@@ -102,7 +101,9 @@ if(choix_ordre=="pval")
 	if(p<n) 	#on calcule pval avec une seule regression comportant toutes les variables
 	{reg=lm(Y~data-1)
 		a=summary(reg)$coefficients[,4]
+		a[1]=0	#on ne selectionne pas l'intercept
 		b=sort(a,index.return=TRUE)
+		ORDRE=b$ix[1:maxordre]
 		ORDREBETA=b$ix
 		XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
@@ -116,7 +117,9 @@ if(choix_ordre=="pval")
 			c=summary(reg)$coefficients[,4]
 			a=c(a,c)
 		}
+		a[1]=0
 		b=sort(a,index.return=TRUE)
+		ORDRE=b$ix[1:maxordre]
 		ORDREBETA=b$ix
 		XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
@@ -130,18 +133,18 @@ if(choix_ordre=="pval_hd")
 		c=summary(reg)$coefficients[,4]
 		a=c(a,c)
 	}
+	a[1]=0
 	b=sort(a,index.return=TRUE)
+	ORDRE=b$ix[1:maxordre]
 	ORDREBETA=b$ix
 	XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 	if(showordre){print(b$ix)}
 }
 if(choix_ordre=="bolasso")
 {
-	ordre=dyadiqueordre(data,Y,m,maxordre,var_nonselect,maxit,showtest=showtest,showordre=showordre)# donne l'ordre (dans ordre) et le nombre de fois ou l'algo a redemarré (dans prob)	
-	if(ordre$prob>=maxit)
-	{stop(paste("can't achieve to order", maxordre, "variables in ",maxit, "iterations"))}
-		
+	ordre=dyadiqueordre(data,Y,m,maxordre,var_nonselect,showtest=showtest,showordre=showordre)# donne l'ordre (dans ordre) et le nombre de fois ou l'algo a redemarré (dans prob)	
 	b=ordre$ordre
+	ORDRE=b
 	if(showordre){print(b)}
 
 	for(i in 1:p)
@@ -314,7 +317,7 @@ for(i in 1:length(alpha))
 {reg=lm(Y~data[,relevant_variables[i,]]-1)
 	coefficients[relevant_variables[i,],i]=reg$coefficients
 	reg$coefficients[-which(reg$coefficients!=0)]=0
-	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,]]%*%reg$coefficients)
+	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 }
 #}else{
 #	for(i in 1:length(alpha))
@@ -330,7 +333,7 @@ colnames(Y.fitted)=alpha
 rownames(coefficients)=c("intercept",paste("beta",1:(p-1),sep=""))
 colnames(coefficients)=alpha
 
-out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ordre$ordre,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call(),call.old=object$call)
+out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ORDRE,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call(),call.old=object$call)
 
 out
 structure(out,class="proctest")	

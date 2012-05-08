@@ -1,6 +1,6 @@
 #procbol=function(data,...){UseMethod("procbol")}
-#procbol.default=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,maxit,showordre,IT,maxq,showtest,showresult,...)
-procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,maxit,showordre,IT,maxq,showtest,showresult)
+#procbol.default=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,...)
+procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult)
 {
 	#essai de penalisation de l'intercept, si var_nonselect=0 et qu'il y a deja l'intercept
 	#merde a cause de la division dans le quantile..
@@ -14,7 +14,6 @@ procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolass
 #	maxordre= nombre de variables max qu'on ordonne
 #	choix_ordre=avec quelle méthode on ordonne (pval, pval_hd ou bolasso)
 #	m=nombre d'iteration lasso pour le bolasso
-#	maxit=nombre maximum d'itération de l'algorithme d'ordre que l'on fait
 #	showordre=affiche l'ordre au fur et à mesure
 #	IT=nombre de simulations pour le calcul du quantile
 #	maxq=nombre max d'hypotheses alternative testees
@@ -31,7 +30,6 @@ p=ncol(data)
 	if(missing(alpha)){alpha=c(0.1,0.05)}
 	if(missing(choix_ordre)){choix_ordre="bolasso"}
 	if(missing(IT)){IT=1000}
-	if(missing(maxit)){maxit=5}#nombre de fois ou on redemarre l'algo
 	if(missing(maxq)){maxq=log(min(n,p)-1,2)}
 	if(missing(showtest)){showtest=FALSE}
 	if(missing(showordre)){showordre=TRUE}
@@ -75,23 +73,27 @@ if(choix_ordre=="pval")
 	if(p<n) 	#on calcule pval avec une seule regression comportant toutes les variables
 	{reg=lm(Y~data-1)
 		a=summary(reg)$coefficients[,4]
+		a[1]=0	#on ne selectionne pas l'intercept
 		b=sort(a,index.return=TRUE)
+		ORDRE=b$ix[1:maxordre]
 		ORDREBETA=b$ix
 		XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
 		}else{		#on calcule pval avec FDR2: une regression pour chaque variable
 
-		print("p>n, the order 'pval' is not possible, 'pval_hd' is used instead")
-		a=numeric(0)
-		for(i in 1:p)
-		{
-			reg=lm(Y~data[,i]-1)
-			c=summary(reg)$coefficients[,4]
-			a=c(a,c)
-		}
-		b=sort(a,index.return=TRUE)
-		ORDREBETA=b$ix
-		XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
+			print("p>n, the order 'pval' is not possible, 'pval_hd' is used instead")
+			a=numeric(0)
+			for(i in 1:p)
+			{
+				reg=lm(Y~data[,i]-1)
+				c=summary(reg)$coefficients[,4]
+				a=c(a,c)
+			}
+			a[1]=0
+			b=sort(a,index.return=TRUE)
+			ORDRE=b$ix[1:maxordre]
+			ORDREBETA=b$ix
+			XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
 		} 
 }
@@ -103,8 +105,10 @@ if(choix_ordre=="pval_hd")
 		c=summary(reg)$coefficients[,4]
 		a=c(a,c)
 	}
+	a[1]=0
 	b=sort(a,index.return=TRUE)
 	ORDREBETA=b$ix
+	ORDRE=b$ix[1:maxordre]
 	XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 	if(showordre){print(b$ix)}
 }
@@ -112,12 +116,9 @@ if(choix_ordre=="pval_hd")
 
 if(choix_ordre=="bolasso")
 {
-	ordre=dyadiqueordre(data,Y,m,maxordre,var_nonselect,maxit,showtest=showtest,showordre=showordre)# donne l'ordre (dans ordre) et le nombre de fois ou l'algo a redemarré (dans prob)	
-	if(ordre$prob>=maxit)
-	{stop(paste("can't achieve to order", maxordre, "variables in ",maxit, "iterations"))}
-		
+	ordre=dyadiqueordre(data,Y,m,maxordre,var_nonselect,showtest=showtest,showordre=showordre)# donne l'ordre (dans ordre) et le nombre de fois ou l'algo a redemarré (dans prob)	
 	b=ordre$ordre
-	if(showordre){print(b)}
+	ORDRE=b
 
 	for(i in 1:p)
 {if(sum(i==b)==0){b=c(b,i)}} #on complete l'ordre par les variables restantes
@@ -236,7 +237,7 @@ rownames(aV2)=paste("alpha=",alpha)
 colnames(aV2)=paste("Hk,",0:(maxqdep-1))
 dimnames(aV2)[[3]]=paste("ktest=",(var_nonselect!=0):(dim_X-(var_nonselect==0)))
 
-aV2=aV2[,,1:max(NBR_effect)]
+aV2=aV2[,,1:max(NBR_effect),drop=FALSE]
 
 #fitted.values
 
@@ -248,7 +249,7 @@ for(i in 1:length(alpha))
 {reg=lm(Y~data[,relevant_variables[i,]]-1)
 	coefficients[relevant_variables[i,],i]=reg$coefficients
 	reg$coefficients[-which(reg$coefficients!=0)]=0
-	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,]]%*%reg$coefficients)
+	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 }
 #}else{
 #	for(i in 1:length(alpha))
@@ -263,7 +264,7 @@ colnames(Y.fitted)=paste("alpha=",alpha)
 rownames(coefficients)=c("intercept",paste("X",2:p,sep=""))
 colnames(coefficients)=alpha
 
-out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ordre$ordre,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call())
+out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ORDRE,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call())
 
 out
 structure(out,class="proctest")

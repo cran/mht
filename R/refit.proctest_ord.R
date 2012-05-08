@@ -17,19 +17,18 @@ refit.proctest_ord=function(object,Ynew,ordrenew,IT,var_nonselect,sigma,showresu
 	if(length(Ynew)!=n){stop(" 'data' and 'Ynew' must have the same length ")}
 	if(missing(showresult)){showresult=TRUE}
 	if(missing(sigma)){sigma=0}
-	if(missing(IT)){IT=2000}
+	if(missing(IT)){IT=20000}
 
 
 if(missing(ordrenew))
-{ordrenew=object$ordre	
-	dataa=data
-}else{
-	if(length(ordrenew)<p)
+{ordrenew=object$ordre}	
+
+if(length(ordrenew)<p)
 	{for(i in 1:p)
 		{if(sum(i==ordrenew)==0){ordrenew=c(ordrenew,i)}} #on complete l'ordre par les variables restantes
 		}
-	dataa=data[,ordrenew]
-	}
+dataa=data[,ordrenew]
+
 	
 ORDREBETA=ordrenew
 		
@@ -116,7 +115,7 @@ if(ktest>indice)
 	{	aV[,ktest]=aV2[,ktest,I[length(I)]]#object$quantile[,,ktest]#get(paste("aV",I,sep="_"))[,,ktest]
 		#blabla=c(blabla,0)#on met 0 si le quantile est deja calculé
 		calcul=c(calcul,0)}else{
-			print("blabla")
+		if(showresult){print(paste("ktest=",ktest))}
 			#if(showresult){print(paste("ktest=",ktest))}
 		quant=quantil_ord(n,dim_X,k=ktest,alpha,IT,sigma=sigma)#calcul du alpham
 		

@@ -10,12 +10,9 @@ p=ncol(data)
 
 b=0
 nbrprob=0
-seuil=3
+seuil=2
 while((sum(b==0)!=0)&(nbrprob<seuil)) # on recommence si à la fin on n'a pas assez de simulations pour obtenir une estimation du quantile
 {
-if(sum(b==0)!=0){nbrprob=nbrprob+1}#on incremente de 1 si on recommence
-
-
 ijk=k
 
 
@@ -40,7 +37,7 @@ if(k==0){XI2dep=0
 	U2dep=0}
 a=quantiletest(k,data,XI2dep,U2dep,n,p,F,IT,maxq-1,sigma=sigma)	
 F=t(matrix(a$retour,sup,IT))
-#print(F[,1])
+#print(F[,sup])
 long=200
 lg_alpha=length(alpha)
 bV=array(0,c(long+1,sup,lg_alpha))
@@ -93,6 +90,9 @@ a=ind[length(ind)]
 #b=c(b,a)
 if(length(a)==0){b=c(b,0)}else{b=c(b,a)}
 }
+			
+	if(sum(b==0)!=0){nbrprob=nbrprob+1}#on incremente de 1 si on recommence
+
 }#fin while
 
 if(nbrprob==seuil){print(paste("number of simulations too low to estimate the ",alpha[which(b==0)],"-quantile, please increase IT"))}

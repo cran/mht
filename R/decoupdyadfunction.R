@@ -1,4 +1,4 @@
-dyadiqueordre=function(data,Y,m,maxordre,var_nonselect,maxit,showtest,showordre)
+dyadiqueordre=function(data,Y,m,maxordre,var_nonselect,showtest,showordre,random)
 {
 	
 #-----------------------------------	
@@ -7,7 +7,6 @@ dyadiqueordre=function(data,Y,m,maxordre,var_nonselect,maxit,showtest,showordre)
 #	m=nombre d'iteration lasso pour le bolasso
 #	maxordre= nombre de variables max qu'on ordonne
 #	var_nonselect= le nombre de variables qu'on ne veut pas séléctionner, ce sont les premières colonnes dans XI
-#	maxit=nombre maximum d'itération de l'algorithme d'ordre que l'on fait
 #	showtest=affiche le nombre de mu tester 
 #	showordre=affiche l'ordre au fur et à mesure
 #-----------------------------------------
@@ -16,7 +15,6 @@ p=ncol(data)
 n=nrow(data)
 
 if(missing(maxordre)){maxordre=min(n/2-1,p/2-1)}
-if(missing(maxit)){maxit=5}
 if(missing(showtest)){showtest=FALSE}
 if(missing(showordre)){showordre=TRUE}
 if(missing(m)){m=100}
@@ -46,10 +44,6 @@ if(missing(var_nonselect)){var_nonselect=1
 				
 
 numberproblem=0
-problem=1
-while((problem==1)&&(numberproblem<maxit)) #on recommence l'algorithme maxit fois au plus
-{
-problem=0
 
 MU=numeric(0) #on va y mettre tous les mu que l'on teste
 COMPTEUR2=numeric(0) #on va y mettre tous les compteurs que l'on teste
@@ -80,7 +74,9 @@ while(longordo!=1)
 
 if(sum(MU==mu)==0)#si on a pas encore testé le mu
 {
-bol=bolasso(data,Y,mu,m,probaseuil=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)))
+	if(missing(random)){bol=bolasso(data,Y,mu,m,probaseuil=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)))
+	}else{bol=bolasso(data,Y,mu,m,probaseuil=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)),random=random)
+	}
 compteur2=bol$frequency
 
 MU=c(MU,mu)#on met tous les mu qu'on a deja testé
@@ -119,9 +115,27 @@ if(longordo>1){muinf=mumil
 	mu=mumil}
 
 #on met une sécurité
-if((musup-muinf)<10e-15){
+if((musup-muinf)<10e-10){
 	#print("break")
-	problem=1
+	numberproblem=numberproblem+1
+
+	mu=muinf
+	a=which(MU==mu) 			#si on a deja testé le mu
+	compteur2=COMPTEUR2[,a] 	#on evite de refaire un calcul deja fait
+	
+	nonordonne=which(compteur2==1)#nous donne les indices des variables selectionnées
+	
+	#on regarde maintenant lesquelles étaient deja ordonnées
+	ordonne=numeric(0)
+	longnon=length(nonordonne)
+	if(longnon>0)
+	{	for(i in 1:longnon)
+	{if(sum(nonordonne[i]==ordre)==0)
+	{ordonne=c(ordonne,nonordonne[i])}
+	}
+		longordo=length(ordonne) # nombre de difference entre ordre et nonordonne
+	}else{longordo=0}
+		
 	break #nous sort du while s'il y a un problème
 	}
 
@@ -131,16 +145,12 @@ ordre=c(ordre,ordonne)
 
 if(showordre){print(ordre)}
 
-if((musup-muinf)<10e-15){
-	if(showtest){print("break")}
-	break #nous sort de l'algorithme s'il y a un problème
-	}
+	#if((musup-muinf)<10e-15){
+	#if(showtest){print("break")}
+	#break #nous sort de l'algorithme s'il y a un problème
+	#}
 }
 
-
-numberproblem=numberproblem+1*(problem==1) #recence le nombre de problèmes
-
-}#fin while numberproblem<maxit
 #print(paste("number of iteration(s):",numberproblem+1))
 #print(numberproblem+1)
 

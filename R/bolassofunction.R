@@ -1,4 +1,4 @@
-bolasso<-function(data,Y,mu,m,probaseuil,penalty.factor)
+bolasso<-function(data,Y,mu,m,probaseuil,penalty.factor,random)
 {################################################################################
 ###########################   Bolasso   #######################################
 ################################################################################
@@ -38,7 +38,7 @@ dimu=length(mu)
 #on fait une premiere estimation de notre modèle, avec un lasso
 lasso1=glmnet(data,Y,family="gaussian",alpha=1,lambda=mu,penalty.factor=penalty.factor)
 
-mat=matrix(0,ntot)
+mat=NULL
 for(i in 1:dimu)
 {
 	if(penalty.factor[1]==0)
@@ -51,17 +51,19 @@ for(i in 1:dimu)
 	mat0=as.matrix(data[,beta_ind])%*%beta0
 	mat=cbind(mat,mat0)
 	}
-mat=mat[,-1]
 
 eps0=as.matrix(Y)%*%matrix(1,1,dimu)-mat
 eps1=scale(eps0,center=TRUE,scale=FALSE)
 
+if(missing(random))
+{a=matrix(runif(ntot*m,0,ntot),nrow=ntot)
+	random=ceiling(a)}
+b=random
 
 compteur=matrix(0,p,dimu)
 for (j in 1:m)
-{a=runif(ntot,0,ntot)
-	b=ceiling(a)
-	Y33=as.matrix(mat+eps1[b,])	#on bootstrap les residus
+{
+	Y33=as.matrix(mat+eps1[b[,j],])	#on bootstrap les residus
 	
 	betaboot2=matrix(0,p,dimu)
 	for(i in 1:dimu)

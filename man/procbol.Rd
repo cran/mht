@@ -5,7 +5,7 @@
 Multiple testing procedure for variable selection}
 \description{
 Performed a multiple hypotheses testing in a linear model}
-\usage{procbol(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,maxit,showordre,IT,maxq,showtest,showresult)
+\usage{procbol(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult)
 }
 
 \arguments{
@@ -17,7 +17,6 @@ Performed a multiple hypotheses testing in a linear model}
 \item{maxordre}{Number of variables one wishes to order. Default is min(n-1,p-1).}
 \item{choix_ordre}{Three possible algorithms to order the variables. "bolasso" uses the dyadic algorithm with the Bolasso, "pval" use the p-values obtained with a regression on the full set of variables (only when p<n), the last "pval_hd" makes regression on one variable at a time. Default is "bolasso".}
 \item{m}{Number of bootstrapped iteration of the Lasso. Only use if the algorithm is set to "bolasso". Default is m=100.}
-\item{maxit}{Number of times the algorithm is restarted if unabled to order maxordre variables. Default is 5}
 \item{showordre}{Logical value. If TRUE, show the ordered variables at each step of the algorithm. Default is TRUE.}
 \item{IT}{Number of simulations in the calculation of the quantile. Default is 1000.}
 \item{maxq}{Number of maximum multiple hypotheses testing to do. Default is log(min(n,p)-1,2).}
