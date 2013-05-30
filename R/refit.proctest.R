@@ -1,6 +1,6 @@
 #refit.proctest=function(object,...){UseMethod("refit")}
 
-refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,...)
+refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,ordre=c("bolasso","pval","pval_hd"),m,show,IT,maxq,...)
 {
 	#print("refit.proctest")
 	n=nrow(object$data$X)
@@ -8,19 +8,16 @@ refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("
 	
 	if(missing(m)){m=100}
 	if(missing(maxordre)){maxordre=min(n/2-1,p/2-1)}
-	if(missing(choix_ordre)){choix_ordre="bolasso"}
+	if(missing(ordre)){ordre="bolasso"}
 	if(missing(IT)){IT=1000}
 	if(missing(maxq)){maxq=log(min(n,p)-1,2)}
-	if(missing(showtest)){showtest=FALSE}
-	if(missing(showordre)){showordre=TRUE}
-	if(missing(showresult)){showresult=TRUE}
 	if(missing(sigma)){sigma=0}
-	if(missing(showtest)){showtest=FALSE}
-	if(missing(showordre)){showordre=TRUE}
-	if(missing(showresult)){showresult=TRUE}
-	
+	if(missing(show)){show=c(1,0,1)}
+		showordre=show[1]
+		showtest=show[2]
+		showresult=show[3]
 	if(missing(Ynew)){stop('Ynew is missing')}
-	
+	choix_ordre=ordre
 	
 alpha=as.numeric(colnames(object$coefficients))  	     
 data=object$data$X

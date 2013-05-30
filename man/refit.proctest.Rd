@@ -6,7 +6,7 @@ Refit a \code{proctest} object}
 \description{
 Refit a \code{proctest} object for a new observation Ynew}
 \usage{
-\method{refit}{proctest}(object,Ynew,var_nonselect,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,\dots)
+\method{refit}{proctest}(object,Ynew,var_nonselect,sigma,maxordre,ordre,m,show,IT,maxq,\dots)
 }
 
 \arguments{
@@ -15,13 +15,13 @@ Refit a \code{proctest} object for a new observation Ynew}
 \item{var_nonselect}{Number of variables that don't undergo feature selection. They have to be in the first columns of data. Default is 1, the selection is not performed on the intercept.}
 \item{sigma}{Value of the variance if it is known; 0 otherwise. Default is 0.}
 \item{maxordre}{Number of variables one wishes to order. Default is min(n-1,p-1).}
-\item{choix_ordre}{Three possible algorithms to order the variables. "bolasso" uses the dyadic algorithm with the Bolasso, "pval" use the p-values obtained with a regression on the full set of variables (only when p<n), the last "pval_hd" makes regression on one variable at a time. Default is "bolasso".}
+\item{ordre}{Three possible algorithms to order the variables, ordre=c("bolasso","pval","pval_hd"). "bolasso" uses the dyadic algorithm with the Bolasso, "pval" use the p-values obtained with a regression on the full set of variables (only when p<n), the last "pval_hd" makes regression on one variable at a time. Default is "bolasso".}
 \item{m}{Number of bootstrapped iteration of the Lasso. Only use if the algorithm is set to "bolasso". Default is m=100.}
-\item{showordre}{Logical value. If TRUE, show the ordered variables at each step of the algorithm. Default is TRUE.}
+\item{show}{Vector of logical values, show=(showordre,showtest,showresult). Default is (1,0,1). If showordre==TRUE, show the ordered variables at each step of the algorithm.
+If showtest==TRUE, show the number of regularization parameters tested to show the advancement of the dyadic algorithm. Only use if the algorithm is set to "bolasso". 
+if showresult==TRUE, show the value of the statistics and the estimated quantile at each step of the procedure.} 
 \item{IT}{Number of simulations in the calculation of the quantile. Default is 20000.}
 \item{maxq}{Number of maximum multiple hypotheses testing to do. Default is log(min(n,p)-1,2).}
-\item{showtest}{Logical value. Only use if the algorithm is set to "bolasso". if TRUE, show the number of regularization parameters tested to show the advancement of the dyadic algorithm. Default is FALSE.}
-\item{showresult}{Logical value. if TRUE, show the value of the statistics and the estimated quantile at each step of the procedure. Default is TRUE.}
 \item{\dots}{not used.}
 }
 

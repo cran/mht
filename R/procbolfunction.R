@@ -1,6 +1,6 @@
 #procbol=function(data,...){UseMethod("procbol")}
 #procbol.default=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,...)
-procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult)
+procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,ordre=c("bolasso","pval","pval_hd"),m,show,IT,maxq)
 {
 	#essai de penalisation de l'intercept, si var_nonselect=0 et qu'il y a deja l'intercept
 	#merde a cause de la division dans le quantile..
@@ -12,13 +12,14 @@ procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolass
 #	alpha=erreur de première espèce du test
 # 	sigma= si on travaille à variance connue, pas la même stat de test
 #	maxordre= nombre de variables max qu'on ordonne
-#	choix_ordre=avec quelle méthode on ordonne (pval, pval_hd ou bolasso)
+#	ordre=avec quelle méthode on ordonne (pval, pval_hd ou bolasso)
 #	m=nombre d'iteration lasso pour le bolasso
-#	showordre=affiche l'ordre au fur et à mesure
+#	show=c(showordre,showtest,showresult). 
+	#	showordre=affiche l'ordre au fur et à mesure
+	#	showtest=affiche le nombre de mu tester dans l'algorithme d'ordre
+	#	showresult=affiche les resultats des tests
 #	IT=nombre de simulations pour le calcul du quantile
 #	maxq=nombre max d'hypotheses alternative testees
-#	showtest=affiche le nombre de mu tester dans l'algorithme d'ordre
-#	showresult=affiche les resultats des tests
 #-----------------------------------------
 n=nrow(data)	
 p=ncol(data)
@@ -28,14 +29,15 @@ p=ncol(data)
 	if(missing(m)){m=100}
 	if(missing(maxordre)){maxordre=min(n/2-1,p/2-1)}
 	if(missing(alpha)){alpha=c(0.1,0.05)}
-	if(missing(choix_ordre)){choix_ordre="bolasso"}
+	if(missing(ordre)){ordre="bolasso"}
 	if(missing(IT)){IT=1000}
 	if(missing(maxq)){maxq=log(min(n,p)-1,2)}
-	if(missing(showtest)){showtest=FALSE}
-	if(missing(showordre)){showordre=TRUE}
-	if(missing(showresult)){showresult=TRUE}
+	if(missing(show)){show=c(1,0,1)}
+		showordre=show[1]
+		showtest=show[2]
+		showresult=show[3]
 	if(missing(sigma)){sigma=0}
-
+choix_ordre=ordre
 #		-------------------------------------
 #			on scale la matrice de départ
 #		-------------------------------------
