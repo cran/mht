@@ -49,7 +49,7 @@ MU=numeric(0) #on va y mettre tous les mu que l'on teste
 COMPTEUR2=numeric(0) #on va y mettre tous les compteurs que l'on teste
 
 #on initialise le decoupage par le deuxième mu d'un lasso classique (le premier étant très grand)
-lasso1=glmnet(data,Y,family="gaussian",alpha=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)))
+lasso1=glmnet(data,Y,alpha=1,penalty.factor=c(rep(0,var_nonselect),rep(1,p-var_nonselect)))
 	
 mu1=lasso1$lambda[2]
 muinf=0 #correspond au mu de gauche
@@ -139,20 +139,14 @@ if((musup-muinf)<10e-10){
 	break #nous sort du while s'il y a un problème
 	}
 
+if(showtest==TRUE) print(mu)
 }#fin while, on a donc une seule variable dans ordonne, c'est la variable suivante 
 
 ordre=c(ordre,ordonne)
 
 if(showordre){print(ordre)}
 
-	#if((musup-muinf)<10e-15){
-	#if(showtest){print("break")}
-	#break #nous sort de l'algorithme s'il y a un problème
-	#}
 }
-
-#print(paste("number of iteration(s):",numberproblem+1))
-#print(numberproblem+1)
 
 return(list(data_used=bol$data,ordre=ordre,prob=numberproblem,mu=MU,compteur=COMPTEUR2))
 }#fin function

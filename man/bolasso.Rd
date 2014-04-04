@@ -36,6 +36,6 @@ Model-consistent sparse estimation through the bootstrap; F. Bach 2009 \cr}
 \dontrun{
 x=matrix(rnorm(100*20),100,20)
 beta=c(rep(1,5),rep(0,15))
-y=x%*%beta+rnorm(100)
+y=x\%*\%beta+rnorm(100)
 mod=bolasso(x,y,mu=seq(1.5,0.1,-0.1))}
 }

@@ -12,7 +12,7 @@
 #include "maximum.h"
 #include "gaussrand.h"
 #include "scale.h"
-#include "mht.h"
+#include "mhtquant.h"
 
 void delete_kth_column(float *source, float *target, int source_line, int source_column, int k) {
 	int i= k + 1;
@@ -33,7 +33,7 @@ void delete_kth_column(float *source, float *target, int source_line, int source
 }
 
 
-int mht(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq,double *sigma)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
+int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq,double *sigma)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
 {
 	int iter;
 	int IT2= *IT;

@@ -1,20 +1,20 @@
-\name{refit.proctest}
+\name{refit.mht}
 \alias{refit}
-\alias{refit.proctest}
+\alias{refit.mht}
 \title{
-Refit a \code{proctest} object}
+Refit a \code{mht} object}
 \description{
-Refit a \code{proctest} object for a new observation Ynew}
+Refit a \code{mht} object for a new observation Ynew}
 \usage{
-\method{refit}{proctest}(object,Ynew,var_nonselect,sigma,maxordre,ordre,m,show,IT,maxq,\dots)
+\method{refit}{mht}(object,Ynew,var_nonselect,sigma,maxordre,ordre,m,show,IT,maxq,\dots)
 }
 
 \arguments{
-\item{object}{Object of class "proctest".}
+\item{object}{Object of class "mht".}
 \item{Ynew}{Response variable of length n.}
 \item{var_nonselect}{Number of variables that don't undergo feature selection. They have to be in the first columns of data. Default is 1, the selection is not performed on the intercept.}
 \item{sigma}{Value of the variance if it is known; 0 otherwise. Default is 0.}
-\item{maxordre}{Number of variables one wishes to order. Default is min(n-1,p-1).}
+\item{maxordre}{Number of variables to order. Default is min(n-1,p-1).}
 \item{ordre}{Three possible algorithms to order the variables, ordre=c("bolasso","pval","pval_hd"). "bolasso" uses the dyadic algorithm with the Bolasso, "pval" use the p-values obtained with a regression on the full set of variables (only when p<n), the last "pval_hd" makes regression on one variable at a time. Default is "bolasso".}
 \item{m}{Number of bootstrapped iteration of the Lasso. Only use if the algorithm is set to "bolasso". Default is m=100.}
 \item{show}{Vector of logical values, show=(showordre,showtest,showresult). Default is (1,0,1). If showordre==TRUE, show the ordered variables at each step of the algorithm.
@@ -26,10 +26,10 @@ if showresult==TRUE, show the value of the statistics and the estimated quantile
 }
 
 
-\details{see \code{\link{procbol}} for details.
+\details{see \code{\link{mht}} for details.
 }
 
-\value{A 'proctest' object is returned.
+\value{A 'mht' object is returned.
 \item{data}{List of the user-data: the scaled matrix used in the algorithm and Y.}
 \item{coefficients}{Matrix of the estimated coefficients. Each row concerns a specific user level \code{alpha}.}
 \item{relevant_var}{Set of the relevant variables for each \code{alpha}.}
@@ -48,7 +48,7 @@ x=matrix(rnorm(100*20),100,20)
 beta=c(rep(2,5),rep(0,15))
 y=x\%*\%beta+rnorm(100)
 ynew=x\%*\%beta+rnorm(100)
-mod=procbol(x,y,alpha=c(0.1,0.05),maxordre=15)
+mod=mht(x,y,alpha=c(0.1,0.05),maxordre=15)
 mod2=refit(mod,ynew,maxordre=15)
 }
 }

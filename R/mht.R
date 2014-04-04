@@ -1,9 +1,5 @@
-#procbol=function(data,...){UseMethod("procbol")}
-#procbol.default=function(data,Y,var_nonselect,alpha,sigma,maxordre,choix_ordre=c("bolasso","pval","pval_hd"),m,showordre,IT,maxq,showtest,showresult,...)
-procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,ordre=c("bolasso","pval","pval_hd"),m,show,IT,maxq)
+mht=function(data,Y,var_nonselect,alpha,sigma,maxordre,ordre=c("bolasso","pval","pval_hd","FR"),m,show,IT,maxq)
 {
-	#essai de penalisation de l'intercept, si var_nonselect=0 et qu'il y a deja l'intercept
-	#merde a cause de la division dans le quantile..
 	
 #-----------------------------------	
 #	data=matrice data, the first column should be 1, for the intercept
@@ -12,7 +8,7 @@ procbol=function(data,Y,var_nonselect,alpha,sigma,maxordre,ordre=c("bolasso","pv
 #	alpha=erreur de première espèce du test
 # 	sigma= si on travaille à variance connue, pas la même stat de test
 #	maxordre= nombre de variables max qu'on ordonne
-#	ordre=avec quelle méthode on ordonne (pval, pval_hd ou bolasso)
+#	ordre=avec quelle méthode on ordonne (pval, pval_hd, FR ou bolasso)
 #	m=nombre d'iteration lasso pour le bolasso
 #	show=c(showordre,showtest,showresult). 
 	#	showordre=affiche l'ordre au fur et à mesure
@@ -78,7 +74,7 @@ if(choix_ordre=="pval")
 		a[1]=0	#on ne selectionne pas l'intercept
 		b=sort(a,index.return=TRUE)
 		ORDRE=b$ix[1:maxordre]
-		ORDREBETA=b$ix
+        ORDREBETA=matrix(b$ix,nrow=1)
 		XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
 		}else{		#on calcule pval avec FDR2: une regression pour chaque variable
@@ -94,7 +90,7 @@ if(choix_ordre=="pval")
 			a[1]=0
 			b=sort(a,index.return=TRUE)
 			ORDRE=b$ix[1:maxordre]
-			ORDREBETA=b$ix
+            ORDREBETA=matrix(b$ix,nrow=1)
 			XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 		if(showordre){print(b$ix)}
 		} 
@@ -109,7 +105,7 @@ if(choix_ordre=="pval_hd")
 	}
 	a[1]=0
 	b=sort(a,index.return=TRUE)
-	ORDREBETA=b$ix
+	ORDREBETA=matrix(b$ix,nrow=1)
 	ORDRE=b$ix[1:maxordre]
 	XI_ord=data[,b$ix] #on a ainsi les XI ordonnÈes
 	if(showordre){print(b$ix)}
@@ -126,6 +122,33 @@ if(choix_ordre=="bolasso")
 {if(sum(i==b)==0){b=c(b,i)}} #on complete l'ordre par les variables restantes
 ORDREBETA=matrix(b,nrow=1)
 XI_ord=data[,b] #on a ainsi les XI ordonnées dans XI_ord
+}
+
+if(choix_ordre=="FR")
+{
+    ordre=1
+    ind.left=2:p
+    while(length(ordre)<min(n-1,p,maxordre))
+    {
+        res=NULL
+        for(i in 1:length(ind.left))
+        {
+            X=data[,c(ordre,ind.left[i])]
+            I=diag(1,n)
+            H=X%*%solve(t(X)%*%X)%*%t(X)
+            res[i]=t(Y)%*%(I-H)%*%Y	#same as reg=lm(Y~XI[,VRAINDICE]-1); sum(reg$residuals^2)
+        }
+        a=which.min(res)
+        ordre=c(ordre,ind.left[a])
+        ind.left=ind.left[-a]	
+        
+    }
+b=ORDRE=ordre
+for(i in 1:p)
+{if(sum(i==b)==0){b=c(b,i)}} #on complete l'ordre par les variables restantes
+ORDREBETA=matrix(b,nrow=1)
+XI_ord=data[,b] #on a ainsi les XI ordonnées dans XI_ord
+if(showordre){print(ordre)}
 }
 
 
@@ -176,7 +199,7 @@ for(alph in 1:length(alpha)) #boucle sur alpha
 		maxq=min(log(min(n,dim_X)-ktest-1,2),maxqdep)
 		
 		if(ktest>indice)
-		{quant=quantileprocbol(XI_ord,k=ktest,alpha,IT,maxq=maxq,sigma=sigma)
+		{quant=quantilemht(XI_ord,k=ktest,alpha,IT,maxq=maxq,sigma=sigma)
 			aV[,1:maxq,ktest+(var_nonselect==0)]=quant$quantile
 		indice=indice+1}
 		if(quant$nbrprob==3){break}
@@ -220,12 +243,8 @@ if(ktest==dim_X){k0=dim_X}else{k0=ktest}
 
 NBR=c(NBR,nbr_test) #rÈsultat contenant le nombre de variables sÈlectionnÈes
 NBR_effect=c(NBR_effect,k0)
-	#	if(intercept)
-	#{
-	relevant_variables=rbind(relevant_variables,c(ORDREBETA[1:nbr_test],rep(0,NBR[1]-nbr_test)))
-	#}else{
-	#	OR=ORDREBETA[1:(k0+sum(nonind<=var_nonselect))]-1
-	#	if(NBR[1]>1){relevant_variables=rbind(relevant_variables,c(OR[-1],rep(0,NBR[1]-(length(OR)))))}else{relevant_variables=rbind(relevant_variables,0)}}
+
+relevant_variables=rbind(relevant_variables,c(ORDREBETA[1:nbr_test],rep(0,NBR[1]-nbr_test)))
 
 }#fin boucle sur alpha
 	
@@ -244,8 +263,6 @@ aV2=aV2[,,1:max(NBR_effect),drop=FALSE]
 #fitted.values
 
 Y.fitted=NULL
-#if(intercept)
-#{
 coefficients=matrix(0,ncol=length(alpha),nrow=p)
 for(i in 1:length(alpha))
 {reg=lm(Y~data[,relevant_variables[i,]]-1)
@@ -253,15 +270,7 @@ for(i in 1:length(alpha))
 	reg$coefficients[-which(reg$coefficients!=0)]=0
 	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 }
-#}else{
-#	for(i in 1:length(alpha))
-#{reg=lm(Y~data[,c(1,1+relevant_variables[i,])]-1)
-#	coefficients[c(1,1+relevant_variables[i,]),i]=reg$coefficients
-#	print(coefficients)
-#	Y.fitted=cbind(Y.fitted,data[,c(1,1+relevant_variables[i,])]%*%reg$coefficients)
-#}
-	
-#}
+
 colnames(Y.fitted)=paste("alpha=",alpha)
 rownames(coefficients)=c("intercept",paste("X",2:p,sep=""))
 colnames(coefficients)=alpha
@@ -269,5 +278,5 @@ colnames(coefficients)=alpha
 out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ORDRE,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call())
 
 out
-structure(out,class="proctest")
+structure(out,class="mht")
 }#fin procbol

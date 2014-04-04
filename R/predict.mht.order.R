@@ -1,4 +1,4 @@
-predict.proctest=function(object,newx,...)
+predict.mht.order=function(object,newx,...)
 {
 	 
 	 if(missing(newx)){out=object$fitted.values

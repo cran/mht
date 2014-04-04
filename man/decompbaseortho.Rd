@@ -10,7 +10,7 @@ Orthonormalization of an input matrix with the Gram-Schmidt algorithm.}
 decompbaseortho(data)
 }
 
-\details{Performed an orthonormalization of the input matrix, registering the useless columns.
+\details{Performed an orthonormalization of the input matrix, recording the useless columns.
 }
 \arguments{
 \item{data}{Input matrix of dimension n * p; each column is a parameter.}
@@ -18,7 +18,7 @@ decompbaseortho(data)
 
 
 \value{
-\item{U}{The orthonormal basis obtained from data.}
+\item{U}{The orthonormal basis obtained from \code{data}.}
 \item{nonind}{Set of variables with no contribution. }
 }
 

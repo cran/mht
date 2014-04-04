@@ -1,4 +1,4 @@
-quantileprocbol=function(data,k,alpha,IT,maxq,sigma)
+quantilemht=function(data,k,alpha,IT,maxq,sigma)
 {
 n=nrow(data)
 p=ncol(data)

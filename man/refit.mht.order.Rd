@@ -1,15 +1,15 @@
-\name{refit.proctest_ord}
-\alias{refit.proctest_ord}
+\name{refit.mht.order}
+\alias{refit.mht.order}
 \title{
-Refit a \code{proctest_ord} object}
+Refit a \code{mht.order} object}
 \description{
-Refit a \code{proctest_ord} object for a new observation Ynew}
+Refit a \code{mht.order} object for a new observation Ynew}
 \usage{
-\method{refit}{proctest_ord}(object,Ynew,ordrenew,IT,var_nonselect,sigma,showresult,...)
+\method{refit}{mht.order}(object,Ynew,ordrenew,IT,var_nonselect,sigma,showresult,...)
 }
 
 \arguments{
-\item{object}{Object of class "proctest_ord".}
+\item{object}{Object of class "mht.order".}
 \item{Ynew}{Response variable of length n.}
 \item{ordrenew}{Vector that gave the order on the variables, could be a partial order. If absent, data is considers to be already ordered; Default is (1,2,..,p).}
 \item{IT}{Number of simulations in the calculation of the quantile. Default is 20000.}
@@ -20,10 +20,10 @@ Refit a \code{proctest_ord} object for a new observation Ynew}
 }
 
 
-\details{see \code{\link{proc_ord}} for details.
+\details{see \code{\link{mht.order}} for details.
 }
 
-\value{A 'proctest_ord' object is returned.
+\value{A 'mht.order' object is returned.
 \item{data}{List of the user-data: the scaled matrix used in the algorithm -the first column being (1,...,1)- and Y.}
 \item{coefficients}{Matrix of the estimated coefficients. Each row concerns a specific user level alpha.}
 \item{relevant_var}{Set of the relevant variables.}
@@ -40,7 +40,7 @@ x=matrix(rnorm(100*20),100,20)
 beta=c(rep(2,5),rep(0,15))
 y=x\%*\%beta+rnorm(100)
 ynew=x\%*\%beta+rnorm(100)
-mod=procbol(x,y,maxordre=15)
-mod2=refit(mod,ynew,maxordre=15)
+mod=mht.order(x,y)
+mod2=refit(mod,ynew)
 }
 }

@@ -1,11 +1,11 @@
-\name{proc_ord}
-\alias{proc_ord}
+\name{mht.order}
+\alias{mht.order}
 \docType{package}
 \title{
 Pre-ordered procedure}
 \description{
-Performed a multiple hypotheses testing for ordered variable selection.}
-\usage{proc_ord(data,Y,ordre,var_nonselect,alpha,IT,sigma,showresult)
+Performed multiple hypotheses testing for ordered variable selection.}
+\usage{mht.order(data,Y,ordre,var_nonselect,alpha,IT,sigma,showresult)
 }
 
 \arguments{
@@ -19,9 +19,9 @@ Performed a multiple hypotheses testing for ordered variable selection.}
 \item{showresult}{Logical value. if TRUE, show the value of the statistics and the estimated quantile at each step of the procedure. Default is TRUE.}
 }
 
-\details{The details of the procedure are in 'Multiple hypotheses testing for variable selection; F. Rohart 2011'. If \code{showresult}=TRUE, the statistics and quantile are given. If the statistics is greater than the quantile, the test is rejected and takes the value 1. The procedure stops when all tests are accepted (with values 0).}
+\details{The details of the procedure are in 'Multiple hypotheses testing for variable selection; F. Rohart 2011'. If \code{showresult}=TRUE, the statistics and quantile are given. If the statistic is greater than the quantile, the test is rejected (takes the value 1). The procedure stops when the null huypothesis is accepted (all tests are 0).}
 
-\value{A 'proctest_ord' object is returned for which the methods \code{predict} and \code{refit} are available.
+\value{A 'mht.order' object is returned for which the methods \code{predict} and \code{refit} are available.
 \item{data}{List of the user-data: the scaled matrix used in the algorithm -the first column being (1,...,1)- and Y.}
 \item{coefficients}{Matrix of the estimated coefficients. Each row concerns a specific user level alpha.}
 \item{relevant_var}{Set of the relevant variables.}
@@ -40,6 +40,6 @@ Multiple hypotheses testing for variable selection; F. Rohart 2011\cr}
 x=matrix(rnorm(100*20),100,20)
 beta=c(rep(2,5),rep(0,15))
 y=x\%*\%beta+rnorm(100)
-mod=proc_ord(x,y,ordre=5:1,alpha=c(0.1,0.05))
+mod=mht.order(x,y,ordre=5:1,alpha=c(0.1,0.05))
 }
 }

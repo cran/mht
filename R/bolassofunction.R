@@ -36,9 +36,11 @@ if(missing(penalty.factor)){penalty.factor=c(0,rep(1,p-1))
 
 dimu=length(mu)
 #on fait une premiere estimation de notre modèle, avec un lasso
-lasso1=glmnet(data,Y,family="gaussian",alpha=1,lambda=mu,penalty.factor=penalty.factor)
+lasso1=glmnet(data,Y,alpha=1,lambda=mu,penalty.factor=penalty.factor)
 
 mat=NULL
+
+
 for(i in 1:dimu)
 {
 	if(penalty.factor[1]==0)
@@ -68,7 +70,7 @@ for (j in 1:m)
 	betaboot2=matrix(0,p,dimu)
 	for(i in 1:dimu)
 	{mu1=mu[i]
-	lasso1=glmnet(data,Y33[,i],family="gaussian",alpha=1,lambda=mu1,penalty.factor=penalty.factor)
+	lasso1=glmnet(data,Y33[,i],alpha=1,lambda=mu1,penalty.factor=penalty.factor)
 	
 		betaboot2[,i]=(lasso1$beta[,1]!=0)
 		betaboot2[which(penalty.factor==0),i]=1
@@ -77,6 +79,8 @@ for (j in 1:m)
     compteur=compteur+betaboot2 #on recence les coefficients non nuls
 
 }
+
+
 compteur2=as.matrix(compteur)
 
 probavariable=compteur2/m

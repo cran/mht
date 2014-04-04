@@ -1,4 +1,4 @@
-print.proctest_ord <-
+print.mht.order <-
 function(x,...) {
     # 0. part
     print(x$call)

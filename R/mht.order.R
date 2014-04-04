@@ -1,6 +1,6 @@
 #proc_ord=function(data,...){UseMethod("proc_ord")}
 #proc_ord.default=function(data,Y,ordre,var_nonselect,alpha,IT,sigma,showresult,...)
-proc_ord=function(data,Y,ordre,var_nonselect,alpha,IT,sigma,showresult)
+mht.order=function(data,Y,ordre,var_nonselect,alpha,IT,sigma,showresult)
 {
 #-----------------------------------	
 #	da=matrice data, the first column should be 1, for the intercept
@@ -144,18 +144,15 @@ if(ktest==dim_X){k0=dim_X}else{k0=ktest}
 
 NBR=c(NBR,nbr_test) #rÈsultat contenant le nombre de variables sÈlectionnÈes
 NBR_effect=c(NBR_effect,k0)
-	#if(intercept)
-	#{
-	relevant_variables=rbind(relevant_variables,c(ordre[1:nbr_test],rep(0,NBR[1]-nbr_test)))
-	#}else{relevant_variables=rbind(relevant_variables,c(ordre[1:(k0-1)],rep(0,NBR[1]-k0)))}
 
+relevant_variables=rbind(relevant_variables,c(ordre[1:nbr_test],rep(0,NBR[1]-nbr_test)))
 }#fin boucle sur alpha
 
 	if(showresult){print("relevant variables:")
 	print(relevant_variables)}
 
 if(length(alpha)==1){aV2=matrix(aV[,1:max(NBR_effect)],nrow=1)}else{
-aV2=aV[,1:max(NBR_effect)]}
+aV2=aV[,1:max(NBR_effect),drop=FALSE]}
 
 rownames(aV)=paste("alpha=",alpha)
 rownames(aV2)=paste("alpha=",alpha)
@@ -168,7 +165,7 @@ for(i in 1:length(alpha))
 {reg=lm(Y~dataa[,relevant_variables[i,]]-1)
 	coefficients[relevant_variables[i,],i]=reg$coefficients
 	reg$coefficients[-which(reg$coefficients!=0)]=0
-	Y.fitted=cbind(Y.fitted,dataa[,relevant_variables[i,]]%*%reg$coefficients)
+	Y.fitted=cbind(Y.fitted,dataa[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 
 }
 
@@ -179,6 +176,6 @@ colnames(coefficients)=alpha
 out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ordreinit,ordrebeta=ordre,kchap=NBR,quantile=aV2,call=match.call())
 
 out
-structure(out,class="proctest_ord")
+structure(out,class="mht.order")
 	
 }

@@ -1,4 +1,4 @@
-print.proctest <-
+print.mht <-
 function(x,...) {
     # 0. part
     print(x$call)

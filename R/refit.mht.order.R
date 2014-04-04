@@ -1,8 +1,5 @@
-#refit.proctest=function(object,...){UseMethod("refit")}
-
-refit.proctest_ord=function(object,Ynew,ordrenew,IT,var_nonselect,sigma,showresult,...)
+refit.mht.order=function(object,Ynew,ordrenew,IT,var_nonselect,sigma,showresult,...)
 {
-	#print("refit.proctest_ord")
 	n=nrow(object$data$X)
 	p=ncol(object$data$X)
 
@@ -62,9 +59,6 @@ if(missing(var_nonselect))
 }else{	
 	if(var_nonselect<1){stop("var_nonselect has to be greater than 1")}}			
 
-	#n=nrow(data)	
-	#p=ncol(data)
-	
 	Y=Ynew
 	ORDREBETA2=matrix(object$ordrebeta,ncol=p)
 		
@@ -87,7 +81,6 @@ for(alph in 1:length(alpha)) #boucle sur alpha
 	
 	nbr_test=var_nonselect
 
-#indice=indice2[alph]
 	T=1
 	while((T>0)&&(dim_X>ktest+1))
 		{
@@ -99,7 +92,6 @@ if(ktest>indice)
 	i=0
 	I=numeric(0)
 	TT=0
-	#A=numeric(0)
 	while((TT==0)&&(i<abc))#dim(ORDREBETA2)=abc*maxordre
 	{i=i+1
 	a=numeric(0)
@@ -170,9 +162,6 @@ if(ktest==dim_X){k0=dim_X}else{k0=ktest}
 NBR=c(NBR,nbr_test) #rÈsultat contenant le nombre de variables sÈlectionnÈes
 NBR_effect=c(NBR_effect,k0)		
 relevant_variables=rbind(relevant_variables,c(ORDREBETA[1:nbr_test],rep(0,NBR[1]-nbr_test)))
-	#}else{
-	#	OR=ORDREBETA[1:(k0+sum(nonind<=var_nonselect))]-1
-	#	if(NBR[1]>1){relevant_variables=rbind(relevant_variables,c(OR[-1],rep(0,NBR[1]-(length(OR)))))}else{relevant_variables=rbind(relevant_variables,0)}}
 
 }#fin boucle sur alpha
 	
@@ -181,12 +170,8 @@ relevant_variables=rbind(relevant_variables,c(ORDREBETA[1:nbr_test],rep(0,NBR[1]
 
 if(sum(calcul)!=0)
 {
-#aV2[,,1:dim(object$quantile,1)[2]]=object$quantile
-#aV2=array(0,c(length(alpha),maxqdep,dim_X)) #on y met tous les quantiles
-#aV2[,,1:max(NBR+(var_nonselect==0)),nrow(object$ordrebeta)+1]=aV[,,(1:max(NBR+(var_nonselect==0)))]
 aV2[,,nrow(object$ordrebeta)+1]=aV
 
-	#aV2=aV2[,1:max(NBR_effect,dim(object$quantile)[2]),]		
 if(length(alpha)==1){aV2=array(aV2[,1:max(NBR_effect,dim(object$quantile)[2]),],c(1,max(NBR_effect,dim(object$quantile)[2]),nrow(object$ordrebeta)+1))}else{
 aV2=aV2[,1:max(NBR_effect,dim(object$quantile)[2]),]}
 
@@ -198,7 +183,6 @@ colnames(aV2)=paste("ktest=",1:max(NBR_effect,dim(object$quantile)[2]))
 dimnames(aV2)[[3]]=paste("ordrebeta=",1:dim(aV2)[3])
 }else{aV2=object$quantile
 	ORDREBETA=object$ordrebeta}
-#aV2=aV2[,,1:max(NBR+(var_nonselect==0))]
 
 #fitted.values
 
@@ -206,24 +190,13 @@ dimnames(aV2)[[3]]=paste("ordrebeta=",1:dim(aV2)[3])
 Y.fitted=NULL
 coefficients=matrix(0,nrow=p,ncol=length(alpha))
 
-#if(intercept)
-#{
 for(i in 1:length(alpha))
 {reg=lm(Y~data[,relevant_variables[i,]]-1)
 	coefficients[relevant_variables[i,],i]=reg$coefficients
 	reg$coefficients[-which(reg$coefficients!=0)]=0
-	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,]]%*%reg$coefficients)
+	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 }
-#}else{
-#	for(i in 1:length(alpha))
-#{reg=lm(Y~data[,c(1,1+relevant_variables[i,])]-1)
-#	coefficients[c(1,1+relevant_variables[i,]),i]=reg$coefficients
-#	print(coefficients)
-#	Y.fitted=cbind(Y.fitted,data[,c(1,1+relevant_variables[i,])]%*%reg$coefficients)
-#}
-	
-	
-#}
+
 colnames(Y.fitted)=alpha
 rownames(coefficients)=c("intercept",paste("X",2:p,sep=""))
 colnames(coefficients)=alpha
@@ -231,7 +204,7 @@ colnames(coefficients)=alpha
 out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=object$ordre,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call(),call.old=object$call)
 
 out
-structure(out,class="proctest_ord")	
+structure(out,class="mht.order")
 
 		
 }#fin refit proc_ord

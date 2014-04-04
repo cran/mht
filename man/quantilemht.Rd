@@ -1,12 +1,12 @@
-\name{quantileprocbol}
-\alias{quantileprocbol}
+\name{quantilemht}
+\alias{quantilemht}
 \docType{package}
-\title{Calculation of the quantiles of the procbol procedure
+\title{Calculation of the quantiles for the mht procedure
 }
 \description{
-Calculation of the quantiles of the procbol procedure}
+Calculation of the quantiles for the mht procedure}
 \usage{
-quantileprocbol(data,k,alpha,IT,maxq,sigma)
+quantilemht(data,k,alpha,IT,maxq,sigma)
 }
 
 \arguments{

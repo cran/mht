@@ -1,8 +1,5 @@
-#refit.proctest=function(object,...){UseMethod("refit")}
-
-refit.proctest=function(object,Ynew,var_nonselect,sigma,maxordre,ordre=c("bolasso","pval","pval_hd"),m,show,IT,maxq,...)
+refit.mht=function(object,Ynew,var_nonselect,sigma,maxordre,ordre=c("bolasso","pval","pval_hd","FR"),m,show,IT,maxq,...)
 {
-	#print("refit.proctest")
 	n=nrow(object$data$X)
 	p=ncol(object$data$X)
 	
@@ -34,32 +31,6 @@ dim_X=ncol(Uchap)			#nombre de variables utiles
 	aV2=array(0,c(length(alpha),dim(object$quantile)[2],dim_X,nrow(object$ordrebeta)+1)) 	
 	aV2[,,1:dim(object$quantile)[3],1:nrow(object$ordrebeta)]=object$quantile
 	
-	
-# if(nrow(object$ordrebeta)==1)#on a juste fait un procbol, donc les quantiles sont dans un tableaux de dim alpha*maxq*NBR
-# {
-
-# #aV2=array(0,c(length(alpha),dim(object$quantile)[2],dim_X,2)) #on y met tous les quantiles
-# #aV2[,,1:dim(object$quantile)[3],1]=object$quantile
-
-	# #on reprend les mêmes argument que dans object$call
-	# I=1:length(names(object$call))
-	# a=which(names(object$call)%in%c("object","Ynew","data","Y","alpha"))
-	# I=I[-c(1,a)]
-	# #print(I)
-	# for(i in I)
-	# {if(!is.na(as.numeric(as.character(object$call[i])))){assign(names(object$call)[i],as.numeric(as.character(object$call[i])))}}
-# }else{	
-
-	# #on reprend les mêmes argument que dans object$call.old
-	# I=1:length(names(object$call.old))
-	# a=which(names(object$call.old)%in%c("object","Ynew","data","Y","alpha"))
-	# I=I[-c(1,a)]
-	# #print(I)
-	# for(i in I)
-	# {if(!is.na(as.numeric(as.character(object$call.old[i])))){assign(names(object$call.old)[i],as.numeric(as.character(object$call.old[i])))}}
-# }
-		#print(I)
-
 if(missing(var_nonselect)) var_nonselect=1
 i=var_nonselect
 while(sum(aV2[,,i,1]^2)==0) 
@@ -67,8 +38,6 @@ while(sum(aV2[,,i,1]^2)==0)
 i=i+1
 if(i>dim(object$quantile)[3]) stop('bug')}
 
-	#n=nrow(data)	
-	#p=ncol(data)
 
 #safety
 if(length(Ynew)!=n){stop(paste(" 'data' and 'Ynew' must have the same length:",n))}
@@ -88,7 +57,6 @@ if(length(Ynew)!=n){stop(paste(" 'data' and 'Ynew' must have the same length:",n
 	indice2=cbind(indice2,j)
 	}
 		
-		#indice2=object$kchap
 
 #		-------------------------------------
 #			on ordonne les variables
@@ -149,7 +117,34 @@ if(choix_ordre=="bolasso")
 ORDREBETA=b
 XI_ord=data[,b] #on a ainsi les XI ordonnées dans XI_ord
 }
-		
+
+if(choix_ordre=="FR")
+{
+    ordre=1
+    ind.left=2:p
+    while(length(ordre)<min(n-1,p,maxordre))
+    {
+        res=NULL
+        for(i in 1:length(ind.left))
+        {
+            X=data[,c(ordre,ind.left[i])]
+            I=diag(1,n)
+            H=X%*%solve(t(X)%*%X)%*%t(X)
+            res[i]=t(Y)%*%(I-H)%*%Y	#same as reg=lm(Y~XI[,VRAINDICE]-1); sum(reg$residuals^2)
+        }
+        a=which.min(res)
+        ordre=c(ordre,ind.left[a])
+        ind.left=ind.left[-a]
+        
+    }
+    b=ORDRE=ordre
+    for(i in 1:p)
+    {if(sum(i==b)==0){b=c(b,i)}} #on complete l'ordre par les variables restantes
+    ORDREBETA=matrix(b,nrow=1)
+    XI_ord=data[,b] #on a ainsi les XI ordonnées dans XI_ord
+}
+
+
 #		-------------------------------------
 #		  on décompose dans une base ortho
 #		-------------------------------------
@@ -189,7 +184,6 @@ for(alph in 1:length(alpha)) #boucle sur alpha
 	
 	nbr_test=var_nonselect
 
-#indice=indice2[alph]
 	T=1
 	while((T>0)&&(dim_X>ktest+1))
 		{
@@ -202,7 +196,6 @@ if(ktest>indice)
 	i=0
 	I=numeric(0)
 	TT=0
-	#A=numeric(0)
 	while((TT==0)&&(i<abc))#dim(ORDREBETA2)=abc*maxordre
 	{i=i+1
 	a=numeric(0)
@@ -219,7 +212,7 @@ if(ktest>indice)
 		#blabla=c(blabla,0)#on met 0 si le quantile est deja calculé
 		calcul=c(calcul,0)}else{
 		if(showresult){print(paste("ktest=",ktest))}
-		quant=quantileprocbol(XI_ord,k=ktest,alpha,IT,maxq=maxq,sigma=sigma)
+		quant=quantilemht(XI_ord,k=ktest,alpha,IT,maxq=maxq,sigma=sigma)
 		aV[,1:maxq,ktest+(var_nonselect==0)]=quant$quantile
 		#blabla=c(blabla,1)#on met 1 si on a calculé un quantile manquant
 		if(showresult){print(aV[,,ktest])
@@ -268,25 +261,17 @@ if(ktest==dim_X){k0=dim_X}else{k0=ktest}
 NBR=c(NBR,nbr_test) #rÈsultat contenant le nombre de variables sÈlectionnÈes
 NBR_effect=c(NBR_effect,k0)
 
-		#if(intercept)
-	#{
 		relevant_variables=rbind(relevant_variables,c(ORDREBETA[1:nbr_test],rep(0,NBR[1]-nbr_test)))
-	#}else{
-	#	OR=ORDREBETA[1:(k0+sum(nonind<=var_nonselect))]-1
-	#	if(NBR[1]>1){relevant_variables=rbind(relevant_variables,c(OR[-1],rep(0,NBR[1]-(length(OR)))))}else{relevant_variables=rbind(relevant_variables,0)}}
 
 }#fin boucle sur alpha
 	
 	if(showresult){print("relevant variables:")
 	print(relevant_variables)}
 
-#aV2[,,1:dim(object$quantile,1)[2]]=object$quantile
 
 
 if(sum(calcul)!=0)
 {
-#aV2=array(0,c(length(alpha),maxqdep,dim_X)) #on y met tous les quantiles
-#aV2[,,1:max(NBR+(var_nonselect==0)),nrow(object$ordrebeta)+1]=aV[,,(1:max(NBR+(var_nonselect==0)))]
 aV2[,,,nrow(object$ordrebeta)+1]=aV
 
 	aV2=aV2[,,1:max(NBR_effect,dim(object$quantile)[3]),]		
@@ -296,36 +281,21 @@ ORDREBETA=rbind(ORDREBETA2,ORDREBETA)
 rownames(aV2)=paste("alpha=",alpha)
 colnames(aV2)=paste("Hk,",0:(maxqdep-1))
 dimnames(aV2)[[3]]=paste("ktest=",(var_nonselect!=0):(max(NBR_effect,dim(object$quantile)[3])-(var_nonselect==0)))
-		#dimnames(aV2)[[3]]=paste("ktest=",(var_nonselect!=0):(dim_X-(var_nonselect==0)))
 dimnames(aV2)[[4]]=paste("ordrebeta=",1:dim(aV2)[4])
 }else{aV2=object$quantile
 	ORDREBETA=object$ordrebeta}
-#aV2=aV2[,,1:max(NBR+(var_nonselect==0))]
 
 #fitted.values
-
-
 Y.fitted=NULL
 coefficients=matrix(0,nrow=p,ncol=length(alpha))
 
-#if(intercept)
-#{
 for(i in 1:length(alpha))
 {reg=lm(Y~data[,relevant_variables[i,]]-1)
 	coefficients[relevant_variables[i,],i]=reg$coefficients
 	reg$coefficients[-which(reg$coefficients!=0)]=0
 	Y.fitted=cbind(Y.fitted,data[,relevant_variables[i,],drop=FALSE]%*%reg$coefficients)
 }
-#}else{
-#	for(i in 1:length(alpha))
-#{reg=lm(Y~data[,c(1,1+relevant_variables[i,])]-1)
-#	coefficients[c(1,1+relevant_variables[i,]),i]=reg$coefficients
-#	print(coefficients)
-#	Y.fitted=cbind(Y.fitted,data[,c(1,1+relevant_variables[i,])]%*%reg$coefficients)
-#}
-	
-	
-#}
+
 colnames(Y.fitted)=alpha
 rownames(coefficients)=c("intercept",paste("beta",1:(p-1),sep=""))
 colnames(coefficients)=alpha
@@ -333,7 +303,7 @@ colnames(coefficients)=alpha
 out=list(data=list(X=data,Y=Y),coefficients=coefficients,relevant_var=relevant_variables,fitted.values=Y.fitted,ordre=ORDRE,ordrebeta=ORDREBETA,kchap=NBR,quantile=aV2,call=match.call(),call.old=object$call)
 
 out
-structure(out,class="proctest")	
+structure(out,class="mht")
 
 		
 }#fin refit procbol

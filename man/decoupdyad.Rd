@@ -13,7 +13,7 @@ dyadiqueordre(data,Y,m,maxordre,var_nonselect,showtest,showordre,random)
 \item{data}{Input matrix of dimension n*p; each row is an observation vector. The intercept should be included in the first column as (1,...,1). If not, it is added.}
 \item{Y}{Response variable of length n.}
 \item{m}{Number of bootstrapped iteration of the Lasso. Default is \code{m}=100.}
-\item{maxordre}{Number of variables one wishes to order. Default is min(n-1,p-1).}
+\item{maxordre}{Number of variables to order. Default is min(n-1,p-1).}
 \item{var_nonselect}{Number of variables that don't undergo feature selection. They have to be in the first columns of data. Default is 1, the selection is not performed on the intercept.}
 \item{showtest}{Logical value. If TRUE, show the number of regularization parameters tested to show the steps of the algorithm. Default is FALSE.}
 \item{showordre}{Logical value. If TRUE, show the ordered variables at each step of the algorithm. Default is TRUE.}
