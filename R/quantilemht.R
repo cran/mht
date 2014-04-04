@@ -35,7 +35,12 @@ sup=floor(maxq) #nombre max de tests que l'on fait
 F=matrix(0,IT*sup)
 if(k==0){XI2dep=0
 	U2dep=0}
-a=quantiletest(k,data,XI2dep,U2dep,n,p,F,IT,maxq-1,sigma=sigma)	
+
+if(sigma>0)
+{epsilon=rnorm(n*IT,sd=sqrt(sigma))
+}else{epsilon=rnorm(n*IT)}
+
+a=quantiletest(k,data,XI2dep,U2dep,n,p,F,IT,maxq-1,sigma=sigma,e=epsilon)
 F=t(matrix(a$retour,sup,IT))
 #print(F[,sup])
 long=200

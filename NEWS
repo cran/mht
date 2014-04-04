@@ -1,0 +1,16 @@
+
+
+Changes in 3.0.11
+================
+
+Bug fixes:
+----------
+- predict.mht and predict.mht.order have been fixed.
+
+Changes in 3.00
+================
+
+-the function procbol has been renamed mht
+-the function proc.order has been renamed mht.order
+
+

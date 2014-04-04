@@ -4,14 +4,16 @@ predict.mht=function(object,newx,...)
 	 if(missing(newx)){out=object$fitted.values
 	  	
 	  }else{
-	  	    
-		  if(sum(newx[,1])==n){newx=cbind(newx[,1],scale(newx[,-1])/sqrt(n-1))
+          
+          n=nrow(object$data$X)
+          p=ncol(object$data$X)
+		  
+          if(sum(newx[,1])==n){newx=cbind(newx[,1],scale(newx[,-1])/sqrt(n-1))
 			  newx[which(is.na(newx))]=0
 			  intercept=TRUE
 		  }else{
 			  message("intercept has been added")
 			  
-			  n=nrow(object$data$X)
 			  newx=scale(newx)/sqrt(n-1)
 			  newx[which(is.na(newx))]=0
 			  newx=cbind(1,newx)

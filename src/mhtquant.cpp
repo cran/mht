@@ -10,7 +10,7 @@
 #include "produit_mat.h"
 #include "transpose.h"
 #include "maximum.h"
-#include "gaussrand.h"
+//#include "gaussrand.h"
 #include "scale.h"
 #include "mhtquant.h"
 
@@ -33,8 +33,12 @@ void delete_kth_column(float *source, float *target, int source_line, int source
 }
 
 
-int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq,double *sigma)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
+int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double *F,int *IT,int *maxq,double *sigma, double *e)//,double *a, double *b,double *c,double *d, int *lig_a, int *col_a, int *col_b,double *epsilon,int *SUP)//,int *ijk)
 {
+    /*
+     *e: initial vector of random values to calculate the quantiles, of size n*IT
+    */
+    
 	int iter;
 	int IT2= *IT;
 	double sigma2= *sigma; 
@@ -70,6 +74,12 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 	float *U3=(float*)malloc(nl*sup * sizeof(float));//new float[nl*ncb];
 //	float *U3=(float*)malloc((nl*ktest*(ktest>0)+nl*(ktest==0)) * sizeof(float));//new float[nl*ncb];
 	
+    float *epsilonfull= (float*) malloc(nl*IT2* sizeof(float));
+    for(i=0;i<nl*IT2;i++)
+    {
+        epsilonfull[i]= e[i];
+    }
+    
 	float *epsilon=(float*)malloc(nl * sizeof(float));
 	float *eps2=(float*)malloc(nl* sizeof(float));
 	float *cor=(float*)malloc(nc_init * sizeof(float));//new float[nc];
@@ -103,23 +113,31 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 			for(i=0;i<nl* *p;i++)/*si ktest=0 on a besoin de a =XII*/
 				XII[i]=a[i];}
 
+        // modification on 02/09/14: the epsilon will come from R since CRAN doesn't want us to use rand() anymore, and I can't seem to manage to get rnorm(0,1) working
+        for(i=0;i<nl;i++)
+        {
+            epsilon[i]= epsilonfull[nl*iter+i];
+            //printf("epsilon %lg",epsilon[i]);
+        }
+        
 		
-		for(i=0;i<nl;i++)
+		/*for(i=0;i<nl;i++)
 			if(sigma2==0)
 			{epsilon[i]=gaussrand();
 			}else{
 				epsilon[i]=sqrt(sigma2)*gaussrand();
 			}
+         */
 
-		float eps_moy=0;	
+        float eps_moy=0;
 		for(i=0;i<nl;i++)
 			eps_moy +=epsilon[i];
 		
 		for(i=0;i<nl;i++)
 		{		
-			eps2[i]=epsilon[i]-eps_moy/nl; /* eps2 est le epsilon moyenné*/
+			eps2[i]=epsilon[i]-eps_moy/nl; // eps2 est le epsilon moyenné
 		}
-	
+        
 
 		if(ijk==0)
 		{	/*la matrice XII est deja centré reduite*/
@@ -338,6 +356,7 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 	free(reg);
 	free(FF);
 	free(coef);
+    free(epsilonfull);
 	return 0;
 	
 }
