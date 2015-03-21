@@ -96,7 +96,9 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 	float *coef=(float*)malloc(nl* sup * sizeof(float));//new float[nl*maxit];  
 
 	for(iter=0;iter<IT2;iter++)
-	{	
+	{
+        //printf("iteration %d\n",iter);
+
 		ijk=ktest;
 		int nc=nc_init;
 		if(ktest>0) /*si ktest>0, on se sert de b et c (XI2dep et U2dep) fourni en entrée*/
@@ -214,24 +216,40 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 			/*dd=X_, il reste ce qu'il y a dans XI2 qui est dans l'orthogonal de Vk (=b)*/
 			/*on cherche le max de fabs(d)=fabs(X_) par colonne, afin de mettre a 0 la colonne si tout est petit, 
 			 ce qui correspondrait a des 0 en réalité*/
-			for(j=0;j<nc;j++)
+			for(j=nc-1;j>=0;j--)
 			{	int indice=0;
 				float maxi=0;
 				for(i=0;i<nl;i++)
 					colonne_dd[i]=fabs(dd[i*nc+j]);
 				maximum(colonne_dd,nl, &indice, &maxi); /*maximum de d (qui est de taille nl*nc), resultat dans indice et maxi*/
-				if(maxi<(10^-10))
-				{for(i=0;i<nl;i++)
-				{colonne_dd[i]=0;
-				dd[i*nc+j]=0;}
-				}
-			}
-			
+				if(maxi<(pow(10.0,-10)))
+				{//for(i=0;i<nl;i++)
+				//{colonne_dd[i]=0;
+				//dd[i*nc+j]=0;}
+                //printf("maximum inferieur 10^-10 %lg\n",maxi);
+                delete_kth_column(dd, dd, nl, nc, j);
+                    nc--;
+                
+                }
+                //printf("maximum %lg\n",maxi);
 
+			}
+            
+            /*for(j=0;j<nc;j++)
+            {
+                printf("dd before scale %lg\n",dd[j]);
+            }
+             */
 			/*on enleve la moyenne de chaque colonne de dd avant de scaler pour avoir sum carré =1*/
 			
 			scale(dd,nl,nc);
-		
+            
+            
+            /*for(j=0;j<nc;j++)
+            {
+                printf("dd after scale %lg\n",dd[j]);
+            }
+             */
 
 			/* on cherche a calculer les correlations de epsilon avec X_, donc avec d scalé*/
 			produit_mat(eps2, dd, cor, 1, nl, nc);
@@ -239,6 +257,7 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 			for(j=0;j<nc;j++)
 			{	
 				cor[j]=fabs(cor[j]);
+                //printf("cor %lg\n",cor[j]);
 			}
 		
 			
@@ -264,7 +283,9 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 			delete_kth_column(dd, XI2, nl, nc, indice); 
 
 			nc--;
-			/*XI2 est maintenant de dimension nl*nc, nl ligne et nc colonne, correspond au nouveau XI2*/			
+			/*XI2 est maintenant de dimension nl*nc, nl ligne et nc colonne, correspond au nouveau XI2*/
+            //printf("nc %d\n",nc);
+
 		}//fin ij<sup
 
 		/*U2final est de dimension nl*ncc (=n* (ktest+SUP))
@@ -297,8 +318,8 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 		for(j=0;j<ncc;j++)
 		{	reg[j]=0;
 			for(i=0;i<nl;i++)
-				reg[j] +=eps2[i]*U2final[i*ncc+j];
-	//	printf("%lg\n",reg[j]);
+            reg[j] +=eps2[i]*U2final[i*ncc+j];
+            //printf("reg %lg\n",reg[j]);
 		}
 		int m;
 		for(m=0;m<constante;m++)
@@ -321,12 +342,17 @@ int mhtquant(int *Ktest,double *a,double *b, double *c,int *lig_a,int *p,double 
 				}
 				
 				produit_mat(coef,reg ,vect, nl, maxit, 1);
+                //for(i=0;i<nl;i++)
+                //    printf("vect %lg \n",vect[i]);
+
 				
 				/*dd est la somme de la matrice de epsilon - U%*%beta au carré*/
 				float som=0;
 				for(i=0;i<nl;i++)
 					som+=(eps2[i]-vect[i])*(eps2[i]-vect[i]);
-				FF[m]=(nl-ktest-pow(2.0,m))*sum_bet/(pow(2.0,m)*som);			
+                //printf("sum %lg \n",som);
+
+				FF[m]=(nl-ktest-pow(2.0,m))*sum_bet/(pow(2.0,m)*som);
 			}else{FF[m]=sum_bet/sigma2;			
 			}
 		}

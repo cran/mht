@@ -1,3 +1,11 @@
+Changes in 3.1.0
+================
+- new S3 functions plot.mht.order, plot.mht and plot.bolasso
+- new functions "scale_data" and "order.variables"
+- output of the dyadiqueordre function `compteur' has been changed to `frequency'
+- the function `decompbaseortho' is modified to avoid useless calculation once the rank of the matrix is reached.
+- the 'newx' in the function predict is now scaled as object$data$X (using object$data$means.X and object$data$sigma.X)
+- Interval of prediction has been added to the predict function. Output is now an array.
 
 
 Changes in 3.0.11
@@ -10,7 +18,7 @@ Bug fixes:
 Changes in 3.00
 ================
 
--the function procbol has been renamed mht
--the function proc.order has been renamed mht.order
+- the function procbol has been renamed mht
+- the function proc.order has been renamed mht.order
 
 

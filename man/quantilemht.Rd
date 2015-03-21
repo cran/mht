@@ -20,7 +20,7 @@ quantilemht(data,k,alpha,IT,maxq,sigma)
 }
 
 
-\details{Calculation of the quantile of the statistic that tests the null hypothesis Hk: there is no more signal remaining in the variables (k+1,...,p).
+\details{Calculation of the quantile of the statistic that tests the null hypothesis Hk:"\eqn{E(Y)=X_1\beta_1+X_2\beta_2+\dots+X_k\beta_k}", i.e there is no more signal remaining in the variables (k+1,...,p).
 }
 
 \value{

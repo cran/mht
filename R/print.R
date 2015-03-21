@@ -17,5 +17,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+print.mht <- print.mht.order <-
+function(x,...) {
+    # 0. part
+    print(x$call)
 
-.onAttach <- function(libname, pkgname){ packageStartupMessage("Loaded mht ",as.character(packageDescription("mht")[["Version"]])," \nThanks for using me.\nDon't hesitate to contact my maintainer if you have a request or you encountered problems/bugs. ")}
+    # 2a. part
+    alpha=as.numeric(colnames(x$coefficients))  	     
+    cat("","\n")
+    for(i in 1:length(alpha))
+{    cat("Results for alpha=",alpha[i],"\n")
+    cat("Number of relevant variables:",x$kchap[i],"\n")
+  	cat("which are the following columns of object$data$X:",x$relevant_var[i,],"\n\n")
+
+}
+}
+
